@@ -12,5 +12,5 @@ main = do
   args <- getArgs
   case args of
     (h:[]) -> do  {file_stream <- readFile h;
-                  print $ Syntax.isEmptyLine "             "}
+                  print $ Syntax.checker file_stream}
     _      -> putStrLn "Error"

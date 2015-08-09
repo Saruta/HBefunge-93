@@ -1,5 +1,5 @@
 --
--- Syntax checker
+-- dummy syntax checker
 --
 module Syntax where
 
@@ -20,15 +20,18 @@ isEmptyLine       []            = True
 isCorrectCharacter :: Char -> Bool
 isCorrectCharacter c = elem c instructions
 
-isCorrectLine :: [Char] -> Bool
-isCorrectLine (hd:t) | isCorrectCharacter hd = True && isCorrectLine t 
-isCorrectLine (hd:t)      = False
-isCorrectLine []          = True
+isCorrectLine :: [Char] -> Bool -> Bool
+isCorrectLine (hd:t) inStr | hd == '"' = isCorrectLine t (not inStr) 
+isCorrectLine (hd:t) inStr | inStr = isCorrectLine t inStr
+isCorrectLine (hd:t) inStr | isCorrectCharacter hd = 
+  isCorrectLine t inStr 
+isCorrectLine (hd:t) inStr = False
+isCorrectLine []     False = True
 
 subChecker :: [[Char]] -> Int -> Bool
 subChecker (hd:t) width | isEmptyLine hd = False
-subChecker (hd:t) width | not $ isCorrectLine hd = False
-subChecker (hd:t) width | width \= length hd = False
+subChecker (hd:t) width | not $ isCorrectLine hd False = False
+subChecker (hd:t) width | width /= length hd = False
 subChecker (hd:t) width = True && subChecker t width
 subChecker [] width = True 
 
