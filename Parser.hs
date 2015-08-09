@@ -3,21 +3,24 @@
 --
 module Parser where
 
-import qualified Data.Vector as V
+import qualified Data.Vector 
+import Data.List
+
 -- array - width - length
--- data ParseInfo = ParseInfo V.Vector Int Int
+data Grid = Grid 
+  (Data.Vector.Vector (Data.Vector.Vector Char))
+  Int -- Width
+  Int -- Height
 
-getLineSize :: [Char] -> Int
-getLineSize ('\n':t) = 0
-getLineSize [] = 0
-getLineSize (hd:t) = 1 + getLineSize t
-
-getNumbLines :: [Char] -> Int
-getNumbLines str = length $ lines str
-
-maxLineSize :: [Char] -> Int
-maxLineSize str = 42
-
-parse :: [Char] -> Int 
-parse str = length $ lines str 
+-- grid :
+--      * width  <-> length $ grid !! 0
+--      * height <-> length grid
+parse :: [Char] -> Grid
+parse txt = 
+  let grid = lines txt 
+    in Grid 
+      (Data.Vector.generate (length grid) 
+        (\n -> Data.Vector.fromList $ grid !! n)) 
+      (length $ grid !! 0)
+      (length grid)
 
