@@ -63,6 +63,14 @@ user (Parser.Grid grid w h) s (dx,dy) line column =
     ',' -> let (x,s') = pop s in
       do {putChar $ chr x;
       step (Parser.Grid grid w h) s' (dx,dy) (line+dy) (column+dx)}
+    '&' -> 
+      do {x <- readLn;
+      step (Parser.Grid grid w h) (push x s) (dx,dy) (line+dy) 
+        (column+dx)}
+    '~' -> 
+      do {x <- getChar;
+      step (Parser.Grid grid w h) (pushChar x s) (dx,dy) (line+dy) 
+        (column+dx)}
 
 stack :: Parser.Grid -> (Stack Int) -> (Int,Int) -> Int -> Int-> IO()
 stack (Parser.Grid grid w h) s (dx,dy) line column = 
@@ -99,7 +107,7 @@ step (Parser.Grid grid w h) s (dx,dy) line column =
       (line_+dy) (column_+dx)
     c | Lst.elem c ['+','-','*','/','%']
       -> arithm (Parser.Grid grid w h) s (dx,dy) line_ column_
-    c | Lst.elem c ['.',',']
+    c | Lst.elem c ['.',',','~','&']
       -> user (Parser.Grid grid w h) s (dx,dy) line_ column_
     c | Lst.elem c ['$','!',':','`','\\']
       -> stack (Parser.Grid grid w h) s (dx,dy) line_ column_
