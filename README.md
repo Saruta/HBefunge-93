@@ -19,5 +19,5 @@ cp .cabal-sandbox/bin/HBefunge .
 ```
 
 ## Dependencies ##
-* ghc
-* vector (with cabal)
+* cabal
+* Data.Vector 
