@@ -7,17 +7,17 @@ First project in haskell, dummy Befunge-93 interpreter.
 
 ```
 #!shell
-
-ghc --make Main.hs -o HBefunge
+cabal sandbox init
+cabal install -j
+cp .cabal-sandbox/bin/HBefunge .
 ```
 
 ## How does it work ##
 ```
 #!shell
-
 ./HBefunge tests/helloworld.bef
 ```
 
 ## Dependencies ##
-* ghc
-* vector (with cabal)
+* cabal
+* Data.Vector 
