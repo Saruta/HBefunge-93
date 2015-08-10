@@ -18,6 +18,18 @@ controlFlow (Parser.Grid grid w h) s (dx,dy) line column =
     ' ' -> step (Parser.Grid grid w h) s (dx,dy) (line+dy) (column+dx)
     'v' -> step (Parser.Grid grid w h) s (0,1) (line+1) column
     '^' -> step (Parser.Grid grid w h) s (0,-1) (line-1) column
+    '#' -> step (Parser.Grid grid w h) s (dx,dy) (line+2*dy) 
+      (column+2*dx)
+    '_' -> let (x,s') = pop s in
+      if x == 0 then 
+        step (Parser.Grid grid w h) s' (1,0) line (column+1)
+      else
+        step (Parser.Grid grid w h) s' (-1,0) line (column-1) 
+    '|' -> let (x,s') = pop s in
+      if x == 0 then 
+        step (Parser.Grid grid w h) s' (0,1) (line+1) column
+      else
+        step (Parser.Grid grid w h) s' (0,-1) (line-1) column 
     '@' -> putStrLn "--exit success--"
     
 
@@ -40,8 +52,8 @@ arithm (Parser.Grid grid w h)  s  (dx,dy) line column =
     '%' -> let (x,s') = pop s in let (y,s'') = pop s' in
       let s''' = push (y `mod` x) s'' in
         step (Parser.Grid grid w h) s''' (dx,dy) (line+dy) (column+dx)
---
---
+
+
 user :: Parser.Grid -> (Stack Int) -> (Int,Int) -> Int -> Int -> IO()
 user (Parser.Grid grid w h) s (dx,dy) line column = 
   case ((grid ! line)! column) of
@@ -52,10 +64,25 @@ user (Parser.Grid grid w h) s (dx,dy) line column =
       do {putChar $ chr x;
       step (Parser.Grid grid w h) s' (dx,dy) (line+dy) (column+dx)}
 
+stack :: Parser.Grid -> (Stack Int) -> (Int,Int) -> Int -> Int-> IO()
+stack (Parser.Grid grid w h) s (dx,dy) line column = 
+  case ((grid ! line)! column) of
+    '$' -> step (Parser.Grid grid w h) (rmTop s) (dx,dy) (line+dy) 
+        (column+dx) 
+    '!' -> step (Parser.Grid grid w h) (notTop s) (dx,dy) (line+dy)
+        (column+dx)
+    '`' -> step (Parser.Grid grid w h) (greatTop s) (dx,dy) (line+dy)
+        (column+dx)
+    ':' -> step (Parser.Grid grid w h) (dupTop s) (dx,dy) (line+dy)
+        (column+dx)
+    '\\' -> step (Parser.Grid grid w h) (permTop s) (dx,dy) (line+dy)
+        (column+dx)
+
 string :: Parser.Grid -> (Stack Int) -> (Int,Int) -> Int -> Int ->IO()
 string (Parser.Grid grid w h) s (dx,dy) line column =
   case ((grid ! line)! column) of
-    '"' -> step (Parser.Grid grid w h) s (dx,dy) (line+dy) (column+dx)
+    '"' -> step (Parser.Grid grid w h) s (dx,dy) 
+      (line+dy) (column+dx)
     c -> string (Parser.Grid grid w h) (pushChar c s) (dx,dy)   
       (line+dy) (column+dx)
 
@@ -63,7 +90,7 @@ string (Parser.Grid grid w h) s (dx,dy) line column =
 step :: Parser.Grid -> (Stack Int) -> (Int,Int) -> Int -> Int -> IO()
 step (Parser.Grid grid w h) s (dx,dy) line column = 
   case ((grid ! line)! column) of
-    c | Lst.elem c ['>','<',' ','v','^','@'] 
+    c | Lst.elem c ['>','<',' ','v','^','@','_','|','#'] 
       -> controlFlow (Parser.Grid grid w h) s (dx,dy) line column
     c | Lst.elem c ['0'..'9']
       -> step (Parser.Grid grid w h) (pushInt c s) (dx,dy)
@@ -72,10 +99,12 @@ step (Parser.Grid grid w h) s (dx,dy) line column =
       -> arithm (Parser.Grid grid w h) s (dx,dy) line column
     c | Lst.elem c ['.',',']
       -> user (Parser.Grid grid w h) s (dx,dy) line column
+    c | Lst.elem c ['$','!',':','`','\\']
+      -> stack (Parser.Grid grid w h) s (dx,dy) line column
     '"' -> string (Parser.Grid grid w h) s (dx,dy) (line+dy) 
         (column+dx)
     _ -> putStrLn "error, instruction not implemented"
 
 run :: Parser.Grid -> IO()
-run grid = 
-  step grid emptyStack (1,0) 0 0
+run grid = let localStack = emptyStack in 
+  step grid (push 0 localStack) (1,0) 0 0
