@@ -94,6 +94,14 @@ string (Parser.Grid grid w h) s (dx,dy) line column =
     c -> string (Parser.Grid grid w h) (pushChar c s) (dx,dy)   
       (line+dy) (column+dx)
 
+-- program update --
+_update ::  Vector (Vector Char)-> Int -> Int -> Char -> 
+  Vector (Vector Char)
+_update grid line column value = 
+  let line_ = grid !line in
+    let line_' = line_ // [(column,value)] in
+      grid // [(line,line_')]
+
 --        grid                    sens         line  column
 step :: Parser.Grid -> (Stack Int) -> (Int,Int) -> Int -> Int -> IO()
 step (Parser.Grid grid w h) s (dx,dy) line column = 
@@ -111,6 +119,22 @@ step (Parser.Grid grid w h) s (dx,dy) line column =
       -> user (Parser.Grid grid w h) s (dx,dy) line_ column_
     c | Lst.elem c ['$','!',':','`','\\']
       -> stack (Parser.Grid grid w h) s (dx,dy) line_ column_
+    'g' -> {- get -} let (y,s') = pop s in let (x,s'') = pop s' in
+      if y > h || x > w then
+        step (Parser.Grid grid w h) (push 0 s'') (dx,dy) (line_+dy)
+          (column_+dx)
+      else
+        let p = ((grid! y)! x) in
+          step (Parser.Grid grid w h) (pushChar p s'') (dx,dy) 
+            (line_+dy) (column_ +dx)
+    'p' -> {- put -} let (y,s') = pop s in let (x,s'') = pop s' in
+      let (v,s''') = pop s'' in 
+        let v' = chr v in
+          if y > h || x > w then
+            putStrLn "Error, put out of bounds"
+          else
+            step (Parser.Grid (_update grid y x v') w h) 
+              s'' (dx,dy) (line_+dy) (column_+dx) 
     '"' -> string (Parser.Grid grid w h) s (dx,dy) (line_+dy) 
         (column_+dx)
     _ -> putStrLn "error, instruction not implemented"
