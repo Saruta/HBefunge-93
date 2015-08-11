@@ -9,9 +9,6 @@ instructions = ['+','-','*','/','%','!','`','>','<','^','v','?',
   '_','|','"',':','\\',' ','.','$',',','#','@','~','&','g','p'] 
   ++ ['0'..'9']
 
-isCorrectWidth :: [Char] -> Bool
-isCorrectWidth str = False
-
 isEmptyLine :: [Char]           -> Bool
 isEmptyLine (hd:t) | hd == ' '  = True && isEmptyLine t
 isEmptyLine (hd:t)   = False
@@ -31,7 +28,6 @@ isCorrectLine []     False = True
 subChecker :: [[Char]] -> Int -> Bool
 subChecker (hd:t) width | isEmptyLine hd = False
 subChecker (hd:t) width | not $ isCorrectLine hd False = False
-subChecker (hd:t) width | width /= length hd = False
 subChecker (hd:t) width = True && subChecker t width
 subChecker [] width = True 
 
