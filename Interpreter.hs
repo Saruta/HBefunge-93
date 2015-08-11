@@ -7,6 +7,7 @@ import qualified Parser
 import Stack
 import Data.Vector
 import Data.Char
+import System.Random
 import qualified Data.List as Lst
 
 controlFlow :: Parser.Grid -> (Stack Int)-> (Int,Int) -> Int -> Int 
@@ -30,6 +31,14 @@ controlFlow (Parser.Grid grid w h) s (dx,dy) line column =
         step (Parser.Grid grid w h) s' (0,1) (line+1) column
       else
         step (Parser.Grid grid w h) s' (0,-1) (line-1) column 
+    '?' -> do {
+              value <- randomRIO (0,3) :: IO Int;
+              case value of
+                0 -> step (Parser.Grid grid w h) s (1,0) line (column+1)
+                1 -> step (Parser.Grid grid w h) s (-1,0) line (column-1)
+                2 -> step (Parser.Grid grid w h) s (0,1) (line+1) column
+                3 -> step (Parser.Grid grid w h) s (0,-1) (line-1) column
+            }
     '@' -> putStrLn "--exit success--"
     
 
@@ -108,7 +117,7 @@ step (Parser.Grid grid w h) s (dx,dy) line column =
   let line_ = line `mod` h
       column_ = column `mod` w in
   case ((grid ! line_)! column_) of
-    c | Lst.elem c ['>','<',' ','v','^','@','_','|','#'] 
+    c | Lst.elem c ['>','<',' ','v','^','@','_','|','#','?'] 
       -> controlFlow (Parser.Grid grid w h) s (dx,dy) line_ column_
     c | Lst.elem c ['0'..'9']
       -> step (Parser.Grid grid w h) (pushInt c s) (dx,dy)
