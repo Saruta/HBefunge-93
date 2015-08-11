@@ -20,4 +20,5 @@ cp .cabal-sandbox/bin/HBefunge .
 
 ## Dependencies ##
 * cabal
-* Data.Vector 
+* System.Random
+* Data.Vector
