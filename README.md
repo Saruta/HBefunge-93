@@ -22,3 +22,6 @@ ln -s .cabal-sandbox/bin/HBefunge HBefunge
 * cabal
 * System.Random
 * Data.Vector
+
+## Author ##
+Fabien 'Saruta' Siron
