@@ -1,5 +1,3 @@
-# README #
-
 ## HBefunge-93 ##
 First project in haskell, dummy Befunge-93 interpreter.
 
